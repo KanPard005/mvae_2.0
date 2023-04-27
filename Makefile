@@ -12,6 +12,7 @@ test: check
 conda:
 	# Make sure to install miniconda first.
 	conda update conda
+	# conda env create -f environment.yml
 	conda env create -f environment.yml
 
 download_data:
