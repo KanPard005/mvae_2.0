@@ -22,6 +22,7 @@ from .manifold import RadiusManifold
 from .common import sqrt
 from . import spherical as S
 from .poincare import pm
+from geoopt.manifolds import SphereProjection as sm
 
 MIN_NORM = 1e-15
 
@@ -110,7 +111,12 @@ def mob_add(x: Tensor, y: Tensor, K: Tensor) -> Tensor:
     # normy2 = torch.sum(y * y, dim=-1, keepdim=True)
     # denom = 1 - 2 * K * prod + K * K * normx2 * normy2
     # return ((1 - 2 * K * prod - K * normy2) * x + (1 + K * normx2) * y) / denom.clamp(min=MIN_NORM)
-    return pm.mobius_add(x, y, c=-K)
+    #
+    # poinman = pm(c = K)
+    # return poinman.mobius_add(x, y)
+    sphman = sm(k = K)
+    return sphman.mobius_add(x, y)
+    # return pm.mobius_add(x, y, c=-K)
 
 
 def _c(radius: Tensor) -> Tensor:
@@ -122,7 +128,8 @@ def mu_0(shape: Tuple[int, ...], **kwargs: Any) -> Tensor:
 
 
 def lambda_x_c(x: Tensor, c: Tensor, dim: int = -1, keepdim: bool = True) -> Tensor:
-    return 2 / (1 + c * x.pow(2).sum(dim=dim, keepdim=keepdim)).clamp(min=MIN_NORM)
+    res = 2 / (1 + c.clone() * x.pow(2).sum(dim=dim, keepdim=keepdim)).clamp(min=MIN_NORM)
+    return res
 
 
 def lambda_x(x: Tensor, radius: Tensor, dim: int = -1, keepdim: bool = True) -> Tensor:
@@ -134,7 +141,12 @@ def gyration(u: Tensor, v: Tensor, w: Tensor, c: Tensor) -> Tensor:
     # vpw = mob_add(v, w, c)
     # upvpw = mob_add(u, vpw, c)
     # return mob_add(mupv, upvpw, c)
-    return pm.gyration(u, v, w, c=-c)
+    #
+    # poinman = pm(c = c)
+    # return poinman.gyration(u, v, w)
+    sphman = sm(k = c)
+    return sphman.gyration(x, y)
+    # return pm.gyration(u, v, w, c=-c)
 
 
 def parallel_transport_mu0(x: Tensor, dst: Tensor, radius: Tensor) -> Tensor:

@@ -42,7 +42,8 @@ class RiemannianNormal(torch.distributions.Distribution, VaeDistribution):
     def stddev(self) -> Tensor:
         return self.scale  # Not actually the stddev, I think.
 
-    def __init__(self, loc: Tensor, scale: Tensor, manifold: Manifold, validate_args: bool = None) -> None:
+    # def __init__(self, loc: Tensor, scale: Tensor, manifold: Manifold, validate_args: bool = None) -> None:
+    def __init__(self, loc: Tensor, scale: Tensor, manifold: Manifold, validate_args: bool = False) -> None:
         if not isinstance(manifold, PoincareBall):
             raise NotImplementedError("Riemannian Normal currently only works for the Poincare ball.")
 

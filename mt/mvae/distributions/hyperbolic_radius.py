@@ -198,7 +198,8 @@ class HyperbolicRadius(torch.distributions.Distribution):
     support = torch.distributions.constraints.positive
     has_rsample = True
 
-    def __init__(self, dim: int, c: Tensor, scale: Tensor, ars: bool = True, validate_args: bool = None) -> None:
+    # def __init__(self, dim: int, c: Tensor, scale: Tensor, ars: bool = True, validate_args: bool = None) -> None:
+    def __init__(self, dim: int, c: Tensor, scale: Tensor, ars: bool = True, validate_args: bool = False) -> None:
         self.dim = dim
         self.c = c
         self.scale = scale

@@ -1,0 +1,6 @@
+Running on: cuda
+#####
+VAE Model: 2u3; Epochs: 500; Time: 2023-04-26T17:51:06.251336; Fixed curvature: False; Dataset: cifar, h_dim: 8192
+#####
+WARNING: 'conv' architecture only works with --h_dim=8192. To change the h_dim,adjust layer sizes in 'mt/mvae/models/conv_vae.py'.
+	TrainEpoch 0:	

@@ -29,7 +29,8 @@ class HypersphericalUniform(torch.distributions.Distribution, VaeDistribution):
     has_rsample = True
     _mean_carrier_measure = 0
 
-    def __init__(self, dim: int, validate_args: Optional[bool] = None,
+    # def __init__(self, dim: int, validate_args: Optional[bool] = None,
+    def __init__(self, dim: int, validate_args: Optional[bool] = False,
                  device: torch.device = torch.device("cpu")) -> None:
         super().__init__(torch.Size([dim]), validate_args=validate_args)
         self.dim = dim

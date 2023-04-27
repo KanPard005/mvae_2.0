@@ -22,17 +22,27 @@ from .wrapped_distributions import VaeDistribution, EuclideanNormal
 from ..ops import Manifold, StereographicallyProjectedSphere, PoincareBall
 
 
-class WrappedNormal(torch.distributions.Distribution, VaeDistribution):
+class WrappedNormal(torch.distributions.distribution.Distribution, VaeDistribution):
+    # arg_constraints = {
+    #     "loc": torch.distributions.constraints.real_vector,
+    #     "scale": torch.distributions.constraints.positive
+    # }
     arg_constraints = {
-        "loc": torch.distributions.constraints.real_vector,
-        "scale": torch.distributions.constraints.positive
+        "mean": torch.distributions.constraints.real_vector,
+        "stddev": torch.distributions.constraints.positive
     }
     support = torch.distributions.constraints.real
     has_rsample = True
 
-    def __init__(self, loc: Tensor, scale: Tensor, manifold: Manifold, *args: Any, **kwargs: Any) -> None:
+    # def __init__(self, loc: Tensor, scale: Tensor, manifold: Manifold, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, mean: Tensor, stddev: Tensor, manifold: Manifold, *args: Any, **kwargs: Any) -> None:
+        loc, scale = mean, stddev
+        self.loc = loc
+        self.scale = scale
+        self.manifold = manifold
         super().__init__(*args, **kwargs)
         self.dim = loc.shape[-1]
+
 
         # is projected?
         if isinstance(manifold, PoincareBall) or isinstance(manifold, StereographicallyProjectedSphere):
@@ -52,9 +62,6 @@ class WrappedNormal(torch.distributions.Distribution, VaeDistribution):
         assert loc.shape[:-1] == scale.shape[:-1]
         assert tangent_dim == scale.shape[-1]
 
-        self.loc = loc
-        self.scale = scale
-        self.manifold = manifold
         self.device = self.loc.device
         smaller_shape = self.loc.shape[:-1] + torch.Size([tangent_dim])
         self.normal = EuclideanNormal(torch.zeros(smaller_shape, device=self.device), scale, *args, **kwargs)

@@ -1,0 +1,5 @@
+Running on: cuda
+#####
+VAE Model: 3h2; Epochs: 500; Time: 2023-04-26T16:24:13.063565; Fixed curvature: False; Dataset: mnist
+#####
+	TrainEpoch 0:	

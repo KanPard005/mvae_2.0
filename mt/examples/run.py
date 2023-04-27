@@ -26,6 +26,7 @@ from ..utils import str2bool
 
 
 def main() -> None:
+    torch.autograd.set_detect_anomaly(True)
     parser = argparse.ArgumentParser(description="M-VAE runner.")
     parser.add_argument("--device", type=str, default="cuda", help="Whether to use cuda or cpu.")
     parser.add_argument("--data", type=str, default="./data", help="Data directory.")
@@ -149,7 +150,6 @@ def main() -> None:
         eps = 1e-5
         cn = len(model.components) // 3
         signs = [-1] * cn + [1] * cn + [0] * (len(model.components) - 2 * cn)
-        print("Chosen signs:", signs)
         for i, component in enumerate(model.components):
             component._curvature.data += signs[i] * eps
             component._curvature.requires_grad = False

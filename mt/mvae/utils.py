@@ -25,7 +25,7 @@ from .components import Component, ConstantComponent, EuclideanComponent, Stereo
 from .components import SphericalComponent, UniversalComponent, HyperbolicComponent, PoincareComponent
 from .sampling import WrappedNormalProcedure, EuclideanNormalProcedure, EuclideanConstantProcedure
 from .sampling import UniversalSamplingProcedure
-# from .sampling import SphericalVmfProcedure, ProjectedSphericalVmfProcedure, RiemannianNormalProcedure
+from .sampling import SphericalVmfProcedure, ProjectedSphericalVmfProcedure, RiemannianNormalProcedure
 
 space_creator_map = {
     "h": HyperbolicComponent,
@@ -43,19 +43,22 @@ sampling_procedure_map = {
     EuclideanComponent: EuclideanNormalProcedure,
     ConstantComponent: EuclideanConstantProcedure,
     HyperbolicComponent: WrappedNormalProcedure,
-    PoincareComponent: WrappedNormalProcedure,
+    # PoincareComponent: WrappedNormalProcedure,
+    PoincareComponent: RiemannianNormalProcedure,
     UniversalComponent: UniversalSamplingProcedure,
 }
 
 
 def setup_gpu(device: torch.device) -> None:
     if device != torch.device("cpu"):
-        torch.backends.cudnn.flags(enabled=True, benchmark=True, deterministic=False, verbose=False)
+        # torch.backends.cudnn.flags(enabled=True, benchmark=True, deterministic=False, verbose=False)
+        torch.backends.cudnn.flags(enabled=True, benchmark=True, deterministic=False)
 
 
 def set_seeds(seed: int) -> None:
     torch.manual_seed(seed)
-    torch.backends.cudnn.flags(enabled=True, benchmark=False, deterministic=True, verbose=False)
+    # torch.backends.cudnn.flags(enabled=True, benchmark=False, deterministic=True, verbose=False)
+    torch.backends.cudnn.flags(enabled=True, benchmark=False, deterministic=True)
     np.random.seed(seed)
 
 

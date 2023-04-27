@@ -111,6 +111,7 @@ results/
 lsf.*
 plots/
 chkpt/
+chkpt1/
 
 # PyCharm
 .idea/

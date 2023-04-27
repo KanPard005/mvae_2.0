@@ -15,7 +15,9 @@
 
 from typing import Any, Tuple
 
-import geoopt.manifolds.poincare.math as pm
+# import geoopt.manifolds.poincare.math as pm
+# import geoopt.manifolds.PoincareBall as pm
+from geoopt.manifolds import PoincareBall as pm
 import torch
 import torch.distributions
 from torch import Tensor
@@ -24,6 +26,7 @@ from .manifold import RadiusManifold
 from .common import eps, sqrt, atanh
 from . import hyperbolics as H
 
+MIN_NORM = 1e-15
 
 class PoincareBall(RadiusManifold):
 
@@ -97,7 +100,10 @@ def poincare_distance_c(x: Tensor, y: Tensor, c: Tensor, keepdim: bool = True, *
     # res = pm.dist(x, y, c=c, keepdim=keepdim, **kwargs)
 
     sqrt_c = sqrt(c)
-    mob = pm.mobius_add(-x, y, c=c, dim=-1).norm(dim=-1, p=2, keepdim=keepdim)
+
+    # mob = pm.mobius_add(-x, y, c=c, dim=-1).norm(dim=-1, p=2, keepdim=keepdim)
+    poinman = pm(c = c)
+    mob = poinman.mobius_add(-x, y, dim=-1).norm(dim=-1, p=2, keepdim=keepdim)
     arg = sqrt_c * mob
     dist_c = atanh(arg)
     res = dist_c * 2 / sqrt_c
@@ -114,19 +120,27 @@ def mu_0(shape: Tuple[int, ...], **kwargs: Any) -> Tensor:
 
 
 def parallel_transport_mu0(x: Tensor, dst: Tensor, radius: Tensor) -> Tensor:
-    return pm.parallel_transport0(dst, x, c=_c(radius))
+    # return pm.parallel_transport0(dst, x, c=_c(radius))
+    poinman = pm(c = _c(radius))
+    return poinman.parallel_transport0(dst, x)
 
 
 def inverse_parallel_transport_mu0(x: Tensor, src: Tensor, radius: Tensor) -> Tensor:
-    return pm.parallel_transport0back(src, x, c=_c(radius))
+    # return pm.parallel_transport0back(src, x, c=_c(radius))
+    poinman = pm(c = _c(radius))
+    return poinman.parallel_transport0back(src, x)
 
 
 def exp_map(x: Tensor, at_point: Tensor, radius: Tensor) -> Tensor:
     return exp_map_c(x, at_point, c=_c(radius))
+    # poinman = pm(c = _c(radius))
+    # return poinman.exp_map(x, at_point)
 
 
 def exp_map_c(x: Tensor, at_point: Tensor, c: Tensor) -> Tensor:
-    return pm.expmap(at_point, x, c=c)
+    # return pm.expmap(at_point, x, c=c)
+    poinman = pm(c = c)
+    return poinman.expmap(at_point, x)
 
 
 def exp_map_mu0(x: Tensor, radius: Tensor) -> Tensor:
@@ -134,7 +148,9 @@ def exp_map_mu0(x: Tensor, radius: Tensor) -> Tensor:
 
 
 def exp_map_mu0_c(x: Tensor, c: Tensor) -> Tensor:
-    return pm.expmap0(x, c=c)
+    # return pm.expmap0(x, c=c)
+    poinman = pm(c = c)
+    return poinman.expmap0(x)
 
 
 def inverse_exp_map(x: Tensor, at_point: Tensor, radius: Tensor) -> Tensor:
@@ -142,16 +158,25 @@ def inverse_exp_map(x: Tensor, at_point: Tensor, radius: Tensor) -> Tensor:
 
 
 def inverse_exp_map_c(x: Tensor, at_point: Tensor, c: Tensor) -> Tensor:
-    return pm.logmap(at_point, x, c=c)
+    # return pm.logmap(at_point, x, c=c)
+    poinman = pm(c = c)
+    return poinman.logmap(at_point, x)
 
 
 def inverse_exp_map_mu0(x: Tensor, radius: Tensor) -> Tensor:
-    return pm.logmap0(x, c=_c(radius))
+    # return pm.logmap0(x, c=_c(radius))
+    poinman = pm(c = _c(radius))
+    return poinman.logmap0(x)
 
 
 def sample_projection_mu0(x: Tensor, at_point: Tensor, radius: Tensor) -> Tuple[Tensor, Tuple[Tensor, Tensor]]:
     c = _c(radius)
-    v_ = x / pm.lambda_x(at_point, c=c, dim=-1, keepdim=True)  # Corresponds to PT divided by 2.
+    # v_ = x / pm.lambda_x(at_point, c=c, dim=-1, keepdim=True)  # Corresponds to PT divided by 2.
+
+    poinman = pm(c = _c(radius))
+    # v_ = x / poinman.lambda_x(at_point, dim=-1, keepdim=True)  # Corresponds to PT divided by 2.
+    v_ = x / lambda_x_c(at_point, c, dim=-1, keepdim=True)  # Corresponds to PT divided by 2.
+
     x_proj = exp_map(v_, at_point=at_point, radius=radius)
     # x_proj2 = pm.project(x_proj, c=c)
     return x_proj, (v_, x)
@@ -160,7 +185,14 @@ def sample_projection_mu0(x: Tensor, at_point: Tensor, radius: Tensor) -> Tuple[
 def inverse_sample_projection_mu0(x_proj: Tensor, at_point: Tensor, radius: Tensor) -> Tuple[Tensor, Tensor]:
     c = _c(radius)
     v_ = inverse_exp_map_c(x_proj, at_point=at_point, c=c)
-    x = v_ * pm.lambda_x(at_point, c=c, dim=-1, keepdim=True)  # Corresponds to PT multiplied by 2.
+
+    # x = v_ * pm.lambda_x(at_point, c=c, dim=-1, keepdim=True)  # Corresponds to PT multiplied by 2.
+    # poinman = pm(c = c)
+    # lam = poinman.lambda_x(at_point, dim=-1, keepdim=True)
+    lam = lambda_x_c(at_point, c, dim=-1, keepdim=True)
+    x = v_ * lam # Corresponds to PT multiplied by 2.
+
+    # poinman = pm(c = _c(radius))
     return v_, x
 
 
@@ -178,4 +210,10 @@ def exp_map_x_polar(x: Tensor, radius: Tensor, v: Tensor, c: Tensor) -> Tensor:
 
     second_term = (torch.tanh(c.sqrt() * radius / 2) / (c.sqrt() * norm_v)) * v
     assert x.shape == second_term.shape
-    return pm.mobius_add(x, second_term, c=c)
+    poinman = pm(c = c)
+    return poinman.mobius_add(x, second_term)
+    # return pm.mobius_add(x, second_term, c=c)
+
+def lambda_x_c(x: Tensor, c: Tensor, dim: int = -1, keepdim: bool = False):
+    res = 2 / (1 + c.clone() * x.pow(2).sum(dim=dim, keepdim=keepdim)).clamp(min=MIN_NORM)
+    return res

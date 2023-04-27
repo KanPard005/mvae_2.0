@@ -1,0 +1,8 @@
+Running on: cuda
+#####
+VAE Model: 3p2; Epochs: 30; Time: 2023-04-25T07:11:07.236542; Fixed curvature: False; Dataset: bdp
+#####
+	TrainEpoch 0:	{'bce': 71.46206199841781, 'kl': 1.3410473925882438, 'elbo': -72.80310939100605, 'll': 0.0, 'mi': 0.0, 'cov_norm': 0.0, 'beta': 1.0, 'comp_000_p2/curvature': -0.008264462809917356, 'comp_001_p2/curvature': -0.008264462809917356, 'comp_002_p2/curvature': -0.008264462809917356}
+	TrainEpoch 1:	{'bce': 71.13036578423713, 'kl': 0.45293684465315065, 'elbo': -71.58330262889027, 'll': 0.0, 'mi': 0.0, 'cov_norm': 0.0, 'beta': 1.0, 'comp_000_p2/curvature': -0.01, 'comp_001_p2/curvature': -0.01, 'comp_002_p2/curvature': -0.01}
+	TrainEpoch 2:	{'bce': 70.64856525177701, 'kl': 0.4262956715148961, 'elbo': -71.0748609232919, 'll': 0.0, 'mi': 0.0, 'cov_norm': 0.0, 'beta': 1.0, 'comp_000_p2/curvature': -0.012345679012345678, 'comp_001_p2/curvature': -0.012345679012345678, 'comp_002_p2/curvature': -0.012345679012345678}
+	TrainEpoch 3:	
